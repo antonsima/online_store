@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from src.main import get_categories_and_products_from_json_file
+from src.main import get_categories_and_products_from_json_file, Category
 
 
 def test_product(test_product_watermelon):
@@ -54,3 +54,6 @@ def test_get_categories_and_products_from_json_file(mock_load, test_products_fro
     assert products_obj['55" QLED 4K'].description == 'Фоновая подсветка'
     assert products_obj['55" QLED 4K'].price == 123000
     assert products_obj['55" QLED 4K'].quantity == 7
+
+    assert Category.category_count == 4
+    assert Category.product_count == 11
