@@ -17,73 +17,62 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         """ Метод для инициализации экземпляра класса """
 
-        is_created = False
+        tmp_existing_products_names = [existing_product.name for existing_product in Product.__products]
 
-        for existing_product in Product.products():
-            if name == existing_product.name:
-                existing_product.quantity += quantity
-                if price > existing_product.price:
-                    existing_product.price = price
-                    self.name = name
-                    self.description = description
-                    self.__price = price
-                    self.quantity = existing_product.quantity
-
-                    is_created = True
-                else:
-                    self.name = name
-                    self.description = description
-                    self.__price = existing_product.price
-                    self.quantity = existing_product.quantity
-
-                    is_created = True
-
-        if not is_created:
+        if name not in tmp_existing_products_names:
             self.name = name
             self.description = description
             self.__price = price
             self.quantity = quantity
 
-            Product.products().append(self)
+            Product.__products.append(self)
+        else:
+            for index, existing_product in enumerate(Product.__products):
+                if name == existing_product.name:
+                    existing_product.price = price
+                    existing_product.quantity += quantity
 
+                    self.name = name
+                    self.description = description
+                    self.__price = existing_product.price
+                    self.quantity = existing_product.quantity
+
+                    Product.__products[index] = self
+                    break
 
     @classmethod
-    def products(cls):
+    def products(cls) -> list['Product']:
+        """ Возвращает список объектов Product """
+
         return cls.__products
 
     @classmethod
-    def new_product(cls, name: str, description: str, price: float, quantity: int):
-        for existing_product in cls.__products:
-            if name == existing_product.name:
-                existing_product.quantity += quantity
-                if price > existing_product.price:
-                    existing_product.price = price
-                    return cls(name,
-                               description,
-                               price,
-                               existing_product.quantity)
-                else:
-                    return cls(name,
-                               description,
-                               existing_product.price,
-                               existing_product.quantity)
+    def new_product(cls, product_dict: dict) -> 'Product':
+        """ Возвращает новый объект Product """
 
-        cls.__products.append(Product(name, description, price, quantity))
-
-        return cls(name,description,price,quantity)
+        return cls(product_dict['name'],
+                   product_dict['description'],
+                   product_dict['price'],
+                   product_dict['quantity'])
 
     @property
-    def price(self):
+    def price(self) -> float:
+        """ Геттер для цены """
+
         return self.__price
 
     @price.setter
-    def price(self, price):
+    def price(self, price: float) -> None:
+        """ Сеттер для цены """
+
         if price > 0:
-            if price < self.__price:
+            if price >= self.__price:
+                self.__price = price
+            else:
                 is_stop = False
 
                 while not is_stop:
-                    answer = input('Цена, которую вы хотите установить, ниже существующей. Вы уверены?: y/n')
+                    answer = input('Цена, которую вы хотите установить, ниже существующей. Вы уверены? (y/n): ')
                     if answer == 'y':
                         self.__price = price
                         is_stop = True
@@ -91,7 +80,7 @@ class Product:
                         print('Цена не изменена')
                         is_stop = True
                     else:
-                        print('Введите один из предложенных вариантов: либо "y", либо "n"')
+                        print('Введите один из предложенных вариантов: либо "y", либо "n": ')
         else:
             print('Цена не должна быть нулевая или отрицательная')
 
@@ -104,7 +93,6 @@ class Category:
 
     name: str
     description: str
-    __products: list['Product']
 
     category_count = 0
     product_count = 0
@@ -114,121 +102,96 @@ class Category:
     def __init__(self, name: str, description: str, products: list[Product]):
         """ Метод для инициализации экземпляра класса """
 
-        tmp_old_category_names = []
+        tmp_old_category_names = [existing_category.name for existing_category in Category.__categories]
 
-        for existing_category in Category.categories():
-            tmp_old_category_names.append(existing_category.name)
+        if name not in tmp_old_category_names:
+            self.name = name
+            self.description = description
+            self.__products = products
+            Category.__categories.append(self)
+            Category.category_count += 1
+            Category.product_count += len(products)
+        else:
+            for cat_index, existing_category in enumerate(Category.__categories):
+                if name == existing_category.name:
+                    tmp_old_product_names = [existing_product.name for existing_product in
+                                             existing_category.__products]
 
-        for existing_category in Category.categories():
-            if name == existing_category.name:
-                tmp_old_product_names = []
+                    for prod_index, product_ in enumerate(products):
+                        if product_.name in tmp_old_product_names:
+                            old_prod_index = tmp_old_product_names.index(product_.name)
 
-                for existing_product in existing_category.products:
-                    tmp_old_product_names.append(existing_product.name)
+                            existing_category.__products[old_prod_index] = Product(products[prod_index].name,
+                                                                                   products[prod_index].description,
+                                                                                   products[prod_index].price,
+                                                                                   products[prod_index].quantity,)
 
-                for product in products:
-                    if product.name in tmp_old_product_names:
-                        for existing_product in existing_category.products:
-                            if product.name == existing_product.name:
-                                existing_product.quantity += product.quantity
+                        else:
+                            existing_category.__products.append(product_)
 
-                                if product.price > existing_product.price:
-                                    existing_product.price = product.price
-                    else:
-                        existing_category.products.append(product)
+                            Category.product_count += 1
 
-                        Category.product_count += 1
-
-                self.name = name
-                self.description = description
-                self.__products = existing_category.products
-
-            else:
-                if name not in tmp_old_category_names:
                     self.name = name
                     self.description = description
-                    self.__products = products
-
-                    Category.categories().append(self)
-
-                    Category.category_count += 1
-                    Category.product_count += len(products)
+                    self.__products = existing_category.__products
+                    break
 
     @classmethod
-    def categories(cls):
+    def categories(cls) -> list['Category']:
+        """ Возвращает список объектов Category """
+
         return cls.__categories
 
     @property
-    def products(self):
+    def products(self) -> list['Product']:
+        """ Возвращает список объектов Product, для объекта Category """
+
         [print(f'{product.name}, {product.price} руб. Остаток: {product.quantity} шт.') for product in
          self.__products]
 
         return self.__products
 
-    def add_product(self, product: 'Product'):
-        self.__products.append(product)
+    def add_product(self, product: 'Product') -> None:
+        """ Добавляет новый объект Product в категорию """
+
+        tmp_old_product_names = [existing_product.name for existing_product in self.__products]
+
+        if product.name not in tmp_old_product_names:
+            self.__products.append(product)
+
+            Category.product_count += 1
 
 
-def get_categories_and_products_from_json_file(file_name: str) -> tuple[dict, dict]:
+def get_categories_from_json_file(file_name: str) -> list[Category]:
     """
     Принимает название файла в виде строки в директории json,
-    возвращает кортеж словарей:
-    tuple[0] = categories_obj
-    tuple[1] = products_obj
+    возвращает список объектов категорий:
     """
 
     with open(os.path.join(JSON_DIR, file_name), 'r', encoding='utf-8') as file:
         products = json.load(file)
 
-    categories_obj = {}
-    products_obj = {}
+    categories_obj = []
 
     for category in products:
-        name = category['name']
-        description = category['description']
+        cat_name = category['name']
+        cat_description = category['description']
         cat_products = category['products']
 
-        categories_obj[name] = Category(name, description, cat_products)
+        tmp_products_obj = []
 
         for product in cat_products:
-            name = product['name']
-            description = product['description']
-            price = product['price']
-            quantity = product['quantity']
+            prod_name = product['name']
+            prod_description = product['description']
+            prod_price = product['price']
+            prod_quantity = product['quantity']
 
-            products_obj[name] = Product(name, description, price, quantity)
-    return categories_obj, products_obj
+            tmp_products_obj.append(Product(prod_name, prod_description, prod_price, prod_quantity))
+
+        categories_obj.append(Category(cat_name, cat_description, tmp_products_obj))
+
+    return categories_obj
 
 
 if __name__ == "__main__":
-    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
-    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
-    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
-
-    category1 = Category(
-        "Смартфоны",
-        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
-        [product1, product2, product3]
-    )
-
-    print(category1.products)
-    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
-    category1.add_product(product4)
-    print(category1.products)
-    print(category1.product_count)
-
-    new_product = Product.new_product(
-        {"name": "Samsung Galaxy S23 Ultra", "description": "256GB, Серый цвет, 200MP камера", "price": 180000.0,
-         "quantity": 5})
-    print(new_product.name)
-    print(new_product.description)
-    print(new_product.price)
-    print(new_product.quantity)
-
-    new_product.price = 800
-    print(new_product.price)
-
-    new_product.price = -100
-    print(new_product.price)
-    new_product.price = 0
-    print(new_product.price)
+    pass
