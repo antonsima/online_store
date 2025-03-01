@@ -9,16 +9,80 @@ class Product:
 
     name: str
     description: str
-    price: float
+    __price: float
     quantity: int
+
+    __products: list['Product'] = []
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
         """ Метод для инициализации экземпляра класса """
 
-        self.name = name
-        self.description = description
-        self.price = price
-        self.quantity = quantity
+        tmp_existing_products_names = [existing_product.name for existing_product in Product.__products]
+
+        if name not in tmp_existing_products_names:
+            self.name = name
+            self.description = description
+            self.__price = price
+            self.quantity = quantity
+
+            Product.__products.append(self)
+        else:
+            for index, existing_product in enumerate(Product.__products):
+                if name == existing_product.name:
+                    existing_product.price = price
+                    existing_product.quantity += quantity
+
+                    self.name = name
+                    self.description = description
+                    self.__price = existing_product.price
+                    self.quantity = existing_product.quantity
+
+                    Product.__products[index] = self
+                    break
+
+    @classmethod
+    def products(cls) -> list['Product']:
+        """ Возвращает список объектов Product """
+
+        return cls.__products
+
+    @classmethod
+    def new_product(cls, product_dict: dict) -> 'Product':
+        """ Возвращает новый объект Product """
+
+        return cls(product_dict['name'],
+                   product_dict['description'],
+                   product_dict['price'],
+                   product_dict['quantity'])
+
+    @property
+    def price(self) -> float:
+        """ Геттер для цены """
+
+        return self.__price
+
+    @price.setter
+    def price(self, price: float) -> None:
+        """ Сеттер для цены """
+
+        if price > 0:
+            if price >= self.__price:
+                self.__price = price
+            else:
+                is_stop = False
+
+                while not is_stop:
+                    answer = input('Цена, которую вы хотите установить, ниже существующей. Вы уверены? (y/n): ')
+                    if answer == 'y':
+                        self.__price = price
+                        is_stop = True
+                    elif answer == 'n':
+                        print('Цена не изменена')
+                        is_stop = True
+                    else:
+                        print('Введите один из предложенных вариантов: либо "y", либо "n": ')
+        else:
+            print('Цена не должна быть нулевая или отрицательная')
 
 
 class Category:
@@ -29,54 +93,105 @@ class Category:
 
     name: str
     description: str
-    products: list
 
     category_count = 0
     product_count = 0
 
-    def __init__(self, name: str, description: str, products: list):
+    __categories: list['Category'] = []
+
+    def __init__(self, name: str, description: str, products: list[Product]):
         """ Метод для инициализации экземпляра класса """
 
-        self.name = name
-        self.description = description
-        self.products = products
+        tmp_old_category_names = [existing_category.name for existing_category in Category.__categories]
 
-        Category.category_count += 1
-        Category.product_count += len(products)
+        if name not in tmp_old_category_names:
+            self.name = name
+            self.description = description
+            self.__products = products
+            Category.__categories.append(self)
+            Category.category_count += 1
+            Category.product_count += len(products)
+        else:
+            for cat_index, existing_category in enumerate(Category.__categories):
+                if name == existing_category.name:
+                    tmp_old_product_names = [existing_product.name for existing_product in
+                                             existing_category.__products]
+
+                    for prod_index, product_ in enumerate(products):
+                        if product_.name in tmp_old_product_names:
+                            old_prod_index = tmp_old_product_names.index(product_.name)
+
+                            existing_category.__products[old_prod_index] = Product(products[prod_index].name,
+                                                                                   products[prod_index].description,
+                                                                                   products[prod_index].price,
+                                                                                   products[prod_index].quantity,)
+
+                        else:
+                            existing_category.__products.append(product_)
+
+                            Category.product_count += 1
+
+                    self.name = name
+                    self.description = description
+                    self.__products = existing_category.__products
+                    break
+
+    @classmethod
+    def categories(cls) -> list['Category']:
+        """ Возвращает список объектов Category """
+
+        return cls.__categories
+
+    @property
+    def products(self) -> list['Product']:
+        """ Возвращает список объектов Product, для объекта Category """
+
+        [print(f'{product.name}, {product.price} руб. Остаток: {product.quantity} шт.') for product in
+         self.__products]
+
+        return self.__products
+
+    def add_product(self, product: 'Product') -> None:
+        """ Добавляет новый объект Product в категорию """
+
+        tmp_old_product_names = [existing_product.name for existing_product in self.__products]
+
+        if product.name not in tmp_old_product_names:
+            self.__products.append(product)
+
+            Category.product_count += 1
 
 
-def get_categories_and_products_from_json_file(file_name: str) -> tuple[dict, dict]:
+def get_categories_from_json_file(file_name: str) -> list[Category]:
     """
     Принимает название файла в виде строки в директории json,
-    возвращает кортеж словарей:
-    tuple[0] = categories_obj
-    tuple[1] = products_obj
+    возвращает список объектов категорий:
     """
 
     with open(os.path.join(JSON_DIR, file_name), 'r', encoding='utf-8') as file:
         products = json.load(file)
 
-    categories_obj = {}
-    products_obj = {}
+    categories_obj = []
 
     for category in products:
-        name = category['name']
-        description = category['description']
+        cat_name = category['name']
+        cat_description = category['description']
         cat_products = category['products']
 
-        categories_obj[name] = Category(name, description, products)
+        tmp_products_obj = []
 
         for product in cat_products:
-            name = product['name']
-            description = product['description']
-            price = product['price']
-            quantity = product['quantity']
+            prod_name = product['name']
+            prod_description = product['description']
+            prod_price = product['price']
+            prod_quantity = product['quantity']
 
-            products_obj[name] = Product(name, description, price, quantity)
-    return categories_obj, products_obj
+            tmp_products_obj.append(Product(prod_name, prod_description, prod_price, prod_quantity))
+
+        categories_obj.append(Category(cat_name, cat_description, tmp_products_obj))
+
+    return categories_obj
 
 
 if __name__ == "__main__":
-    print(get_categories_and_products_from_json_file('products.json'))
-    print(Category.category_count)
-    print(Category.product_count)
+    pass

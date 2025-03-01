@@ -9,13 +9,34 @@ def test_product_watermelon():
 
 
 @pytest.fixture()
-def test_category_fruits():
-    return Category('Фрукты', 'Сладкая, вкусная еда', ['Банан', 'Яблоко', 'Апельсин'])
+def test_product_orange():
+    return Product('Апельсин', 'Лучший фрукт', 100, 10)
 
 
 @pytest.fixture()
-def test_category_vegetables():
-    return Category('Овощи', 'Полезная еда', ['Картошка', 'Помидор', 'Огурец', 'Свекла'])
+def test_product_apple():
+    return Product('Яблоко', 'Кислый фрукт', 100, 10)
+
+
+@pytest.fixture()
+def test_product_qiwi():
+    return Product('Киви', 'Тоже вкусно', 100, 5)
+
+
+@pytest.fixture()
+def test_category_fruits(test_product_watermelon, test_product_orange, test_product_apple):
+    return Category('Фрукты', 'Сладкая, вкусная еда', [test_product_watermelon,
+                                                       test_product_orange,
+                                                       test_product_apple])
+
+
+@pytest.fixture()
+def test_category_fruits_with_qiwi(test_product_watermelon, test_product_orange, test_product_apple,
+                                   test_product_qiwi):
+    return Category('Фрукты', 'Сладкая, вкусная еда', [test_product_watermelon,
+                                                       test_product_orange,
+                                                       test_product_apple,
+                                                       test_product_qiwi])
 
 
 @pytest.fixture()
