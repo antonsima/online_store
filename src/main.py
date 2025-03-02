@@ -32,12 +32,12 @@ class Product:
                     existing_product.price = price
                     existing_product.quantity += quantity
 
+                    self.self = existing_product
+
                     self.name = name
                     self.description = description
                     self.__price = existing_product.price
                     self.quantity = existing_product.quantity
-
-                    Product.__products[index] = self
                     break
 
     @classmethod
@@ -130,6 +130,7 @@ class Category:
                             existing_category.__products.append(product_)
 
                             Category.product_count += 1
+                    self.self = existing_category
 
                     self.name = name
                     self.description = description
@@ -173,6 +174,9 @@ def get_categories_from_json_file(file_name: str) -> list[Category]:
 
     categories_obj = []
 
+    tmp_old_categories_names = [existing_category.name for existing_category in Category.categories()]
+    tmp_old_product_names = [existing_product.name for existing_product in Product.products()]
+
     for category in products:
         cat_name = category['name']
         cat_description = category['description']
@@ -185,13 +189,39 @@ def get_categories_from_json_file(file_name: str) -> list[Category]:
             prod_description = product['description']
             prod_price = product['price']
             prod_quantity = product['quantity']
-
-            tmp_products_obj.append(Product(prod_name, prod_description, prod_price, prod_quantity))
-
-        categories_obj.append(Category(cat_name, cat_description, tmp_products_obj))
+            if prod_name in tmp_old_product_names:
+                Product(prod_name, prod_description, prod_price, prod_quantity)
+            else:
+                tmp_products_obj.append(Product(prod_name, prod_description, prod_price, prod_quantity))
+        if cat_name in tmp_old_categories_names:
+            existing_category_index = tmp_old_categories_names.index(cat_name)
+            categories_obj.append(Category.categories()[existing_category_index])
+        else:
+            categories_obj.append(Category(cat_name, cat_description, tmp_products_obj))
 
     return categories_obj
 
 
 if __name__ == "__main__":
-    pass
+    categories1 = get_categories_from_json_file('products.json')
+    print(categories1[0].products)
+    print(categories1[1].products)
+    categories2 = get_categories_from_json_file('products.json')
+    print(categories2[0].products)
+    print(categories2[1].products)
+
+    print(Category.categories())
+
+    categories3 = get_categories_from_json_file('products.json')
+    print(categories3[0].products)
+    print(categories3[1].products)
+    categories4 = get_categories_from_json_file('products.json')
+    print(categories4[0].products)
+    print(categories4[1].products)
+
+    print(Category.categories())
+
+    print(categories1)
+    print(categories2)
+    print(categories3)
+    print(categories4)
