@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Iterator
 
 from config import JSON_DIR
 
@@ -40,10 +41,17 @@ class Product:
                     self.quantity = existing_product.quantity
                     break
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Возвращает строку типа
+        Название продукта, 80 руб. Остаток: 15 шт.
+        """
+
         return f'{self.name}, {self.__price} руб. Остаток: {self.quantity} шт.'
 
-    def __add__(self, other):
+    def __add__(self, other: 'Product') -> float:
+        """ Возвращает стоимость двух объектов Product """
+
         return self.price * self.quantity + other.price * other.quantity
 
     @classmethod
@@ -143,14 +151,18 @@ class Category:
                     self.__products = existing_category.__products
                     break
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Возвращает строку типа
+        Название категории, количество продуктов: 200 шт.
+        """
+
         total_quantity = 0
 
         for existing_product in self.__products:
             total_quantity += existing_product.quantity
 
         return f'{self.name}, количество продуктов: {total_quantity} шт.'
-
 
     @classmethod
     def categories(cls) -> list['Category']:
@@ -176,6 +188,31 @@ class Category:
             self.__products.append(product)
 
             Category.product_count += 1
+
+
+class CategoryIter:
+    """ Создает итератор, возвращающий продукт из категории за одну итерацию """
+
+    def __init__(self, category: 'Category'):
+        """ Метод для инициализации экземпляра класса """
+
+        self.category = category
+        self.stop = 0
+
+    def __iter__(self) -> Iterator['Product']:
+        """ Метод для получения итератора для перебора объекта """
+
+        self.products_quantity = len(self.category.products)
+        return self
+
+    def __next__(self) -> 'Product':
+        """ Метод для перехода к следующему значению и его считыванию """
+
+        if self.stop < self.products_quantity:
+            self.stop += 1
+            return self.category.products[self.stop - 1]
+        else:
+            raise StopIteration
 
 
 def get_categories_from_json_file(file_name: str) -> list[Category]:
@@ -215,28 +252,3 @@ def get_categories_from_json_file(file_name: str) -> list[Category]:
             categories_obj.append(Category(cat_name, cat_description, tmp_products_obj))
 
     return categories_obj
-
-
-if __name__ == "__main__":
-    categories1 = get_categories_from_json_file('products.json')
-    print(categories1[0].products)
-    print(categories1[1].products)
-    categories2 = get_categories_from_json_file('products.json')
-    print(categories2[0].products)
-    print(categories2[1].products)
-
-    print(Category.categories())
-
-    categories3 = get_categories_from_json_file('products.json')
-    print(categories3[0].products)
-    print(categories3[1].products)
-    categories4 = get_categories_from_json_file('products.json')
-    print(categories4[0].products)
-    print(categories4[1].products)
-
-    print(Category.categories())
-
-    print(categories1)
-    print(categories2)
-    print(categories3)
-    print(categories4)
