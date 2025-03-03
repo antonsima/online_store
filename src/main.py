@@ -40,6 +40,12 @@ class Product:
                     self.quantity = existing_product.quantity
                     break
 
+    def __str__(self):
+        return f'{self.name}, {self.__price} руб. Остаток: {self.quantity} шт.'
+
+    def __add__(self, other):
+        return self.price * self.quantity + other.price * other.quantity
+
     @classmethod
     def products(cls) -> list['Product']:
         """ Возвращает список объектов Product """
@@ -136,6 +142,15 @@ class Category:
                     self.description = description
                     self.__products = existing_category.__products
                     break
+
+    def __str__(self):
+        total_quantity = 0
+
+        for existing_product in self.__products:
+            total_quantity += existing_product.quantity
+
+        return f'{self.name}, количество продуктов: {total_quantity} шт.'
+
 
     @classmethod
     def categories(cls) -> list['Category']:

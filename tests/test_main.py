@@ -66,6 +66,38 @@ def test_get_categories_from_json_file(mock_load, test_products_from_json):
     assert Category.category_count == 3
     assert Category.product_count == 7
 
+    same_categories_obj = get_categories_from_json_file('products.json')
+
+    assert same_categories_obj[0].name == 'Смартфоны'
+    assert (same_categories_obj[0].description == 'Смартфоны, как средство не только коммуникации, '
+                                             'но и получение дополнительных функций для удобства жизни')
+    assert same_categories_obj[0].products[0].name == 'Samsung Galaxy C23 Ultra'
+    assert same_categories_obj[0].products[0].description == '256GB, Серый цвет, 200MP камера'
+    assert same_categories_obj[0].products[0].price == 180000.0
+    assert same_categories_obj[0].products[0].quantity == 10
+
+    assert same_categories_obj[0].products[1].name == 'Iphone 15'
+    assert same_categories_obj[0].products[1].description == '512GB, Gray space'
+    assert same_categories_obj[0].products[1].price == 210000.0
+    assert same_categories_obj[0].products[1].quantity == 16
+
+    assert same_categories_obj[0].products[2].name == 'Xiaomi Redmi Note 11'
+    assert same_categories_obj[0].products[2].description == '1024GB, Синий'
+    assert same_categories_obj[0].products[2].price == 31000.0
+    assert same_categories_obj[0].products[2].quantity == 28
+
+    assert same_categories_obj[1].name == 'Телевизоры'
+    assert (same_categories_obj[1].description == 'Современный телевизор, который позволяет '
+                                             'наслаждаться просмотром, станет вашим другом и помощником')
+
+    assert same_categories_obj[1].products[0].name == '55" QLED 4K'
+    assert same_categories_obj[1].products[0].description == 'Фоновая подсветка'
+    assert same_categories_obj[1].products[0].price == 123000.0
+    assert same_categories_obj[1].products[0].quantity == 14
+
+    assert Category.category_count == 3
+    assert Category.product_count == 7
+
 
 def test_product_products(test_product_watermelon):
     assert test_product_watermelon.products()[0].name == 'Арбуз'
@@ -83,7 +115,7 @@ def test_product_new_product_and_price_setter(mock_input):
     assert test_new_product.name == '55" QLED 4K'
     assert test_new_product.description == 'Фоновая подсветка'
     assert test_new_product.price == 123000.0
-    assert test_new_product.quantity == 14
+    assert test_new_product.quantity == 21
 
     mock_input.return_value = 'n'
     test_new_product.price = 1000
