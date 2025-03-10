@@ -52,12 +52,10 @@ class Product:
     def __add__(self, other: 'Product') -> float:
         """ Возвращает стоимость двух объектов Product """
 
-        if isinstance(other, Product):
-            if type(self) == type(other):
-                return (self.__price * self.quantity) + (other.price * other.quantity)
+        if type(self) is type(other):
+            return (self.__price * self.quantity) + (other.price * other.quantity)
 
         raise TypeError
-
 
     @classmethod
     def products(cls) -> list['Product']:
