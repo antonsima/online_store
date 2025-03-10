@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from src.main import Category, Product, get_categories_from_json_file
+from src.main import Category, CategoryIter, Product, get_categories_from_json_file
 
 
 def test_product(test_product_watermelon):
@@ -66,6 +66,38 @@ def test_get_categories_from_json_file(mock_load, test_products_from_json):
     assert Category.category_count == 3
     assert Category.product_count == 7
 
+    same_categories_obj = get_categories_from_json_file('products.json')
+
+    assert same_categories_obj[0].name == 'Смартфоны'
+    assert (same_categories_obj[0].description == 'Смартфоны, как средство не только коммуникации, '
+                                                  'но и получение дополнительных функций для удобства жизни')
+    assert same_categories_obj[0].products[0].name == 'Samsung Galaxy C23 Ultra'
+    assert same_categories_obj[0].products[0].description == '256GB, Серый цвет, 200MP камера'
+    assert same_categories_obj[0].products[0].price == 180000.0
+    assert same_categories_obj[0].products[0].quantity == 10
+
+    assert same_categories_obj[0].products[1].name == 'Iphone 15'
+    assert same_categories_obj[0].products[1].description == '512GB, Gray space'
+    assert same_categories_obj[0].products[1].price == 210000.0
+    assert same_categories_obj[0].products[1].quantity == 16
+
+    assert same_categories_obj[0].products[2].name == 'Xiaomi Redmi Note 11'
+    assert same_categories_obj[0].products[2].description == '1024GB, Синий'
+    assert same_categories_obj[0].products[2].price == 31000.0
+    assert same_categories_obj[0].products[2].quantity == 28
+
+    assert same_categories_obj[1].name == 'Телевизоры'
+    assert (same_categories_obj[1].description == 'Современный телевизор, который позволяет '
+                                                  'наслаждаться просмотром, станет вашим другом и помощником')
+
+    assert same_categories_obj[1].products[0].name == '55" QLED 4K'
+    assert same_categories_obj[1].products[0].description == 'Фоновая подсветка'
+    assert same_categories_obj[1].products[0].price == 123000.0
+    assert same_categories_obj[1].products[0].quantity == 14
+
+    assert Category.category_count == 3
+    assert Category.product_count == 7
+
 
 def test_product_products(test_product_watermelon):
     assert test_product_watermelon.products()[0].name == 'Арбуз'
@@ -83,7 +115,7 @@ def test_product_new_product_and_price_setter(mock_input):
     assert test_new_product.name == '55" QLED 4K'
     assert test_new_product.description == 'Фоновая подсветка'
     assert test_new_product.price == 123000.0
-    assert test_new_product.quantity == 14
+    assert test_new_product.quantity == 21
 
     mock_input.return_value = 'n'
     test_new_product.price = 1000
@@ -110,3 +142,29 @@ def test_init_existing_category_and_add_product(test_category_fruits, test_categ
 
 def test_category_categories(test_category_fruits_with_qiwi):
     assert test_category_fruits_with_qiwi.categories()[0].name == 'Фрукты'
+
+
+def test_str_cat_and_prod(test_product_watermelon, test_category_fruits_with_qiwi):
+    assert str(test_product_watermelon) == 'Арбуз, 100 руб. Остаток: 270 шт.'
+    assert str(test_category_fruits_with_qiwi) == 'Фрукты, количество продуктов: 1195 шт.'
+
+
+def test_add_products(test_product_watermelon, test_product_orange):
+    watermelon = test_product_watermelon
+    orange = test_product_orange
+
+    total = watermelon + orange
+
+    assert total == 86000
+
+
+def test_category_iter(test_category_fruits_with_qiwi):
+    tmp_test_list = []
+
+    for product in CategoryIter(test_category_fruits_with_qiwi):
+        tmp_test_list.append(str(product))
+
+    assert tmp_test_list[0] == 'Арбуз, 100 руб. Остаток: 1120 шт.'
+    assert tmp_test_list[1] == 'Апельсин, 100 руб. Остаток: 640 шт.'
+    assert tmp_test_list[2] == 'Яблоко, 100 руб. Остаток: 620 шт.'
+    assert tmp_test_list[3] == 'Киви, 100 руб. Остаток: 110 шт.'
