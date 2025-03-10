@@ -55,7 +55,7 @@ class Product:
         if type(self) is type(other):
             return (self.__price * self.quantity) + (other.price * other.quantity)
 
-        raise TypeError
+        raise TypeError('Нельзя складывать отличающиеся экземпляры классов Product')
 
     @classmethod
     def products(cls) -> list['Product']:
@@ -212,7 +212,7 @@ class Category:
 
                 Category.product_count += 1
         else:
-            raise TypeError
+            raise TypeError('Нельзя добавить объект, не являющийся Product или его наследником')
 
 
 class CategoryIter:
