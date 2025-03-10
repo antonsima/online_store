@@ -206,12 +206,15 @@ class Category:
     def add_product(self, product: 'Product') -> None:
         """ Добавляет новый объект Product в категорию """
 
-        tmp_old_product_names = [existing_product.name for existing_product in self.__products]
+        if isinstance(product, Product):
+            tmp_old_product_names = [existing_product.name for existing_product in self.__products]
 
-        if product.name not in tmp_old_product_names:
-            self.__products.append(product)
+            if product.name not in tmp_old_product_names:
+                self.__products.append(product)
 
-            Category.product_count += 1
+                Category.product_count += 1
+        else:
+            raise TypeError
 
 
 class CategoryIter:
