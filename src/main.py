@@ -1,11 +1,35 @@
 import json
 import os
+from abc import ABC, abstractmethod
 from typing import Iterator
 
 from config import JSON_DIR
 
 
-class Product:
+class BaseProduct(ABC):
+    """ Абстрактный класс для Product """
+
+    @abstractmethod
+    def price(self):
+        pass
+
+    @abstractmethod
+    @classmethod
+    def new_product(cls, product_dict: dict):
+        pass
+
+    @abstractmethod
+    @classmethod
+    def products(cls):
+        pass
+
+
+class LogMixin:
+    def __repr__(self):
+        return f"{self.__class__.__name__}('{self.__dict__})"
+
+
+class Product(BaseProduct, LogMixin):
     """ Класс для представления продукта, который содержит имя, описание, цену и количество """
 
     name: str
@@ -40,6 +64,8 @@ class Product:
                     self.__price = existing_product.price
                     self.quantity = existing_product.quantity
                     break
+
+        print(super().__repr__)
 
     def __str__(self) -> str:
         """
@@ -102,20 +128,20 @@ class Product:
 class Smartphone(Product):
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  efficiency: float, model: str, memory: int, color: str):
-        super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
         self.color = color
+        super().__init__(name, description, price, quantity)
 
 
 class LawnGrass(Product):
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  country: str, germination_period: str, color: str):
-        super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
         self.color = color
+        super().__init__(name, description, price, quantity)
 
 
 class Category:
