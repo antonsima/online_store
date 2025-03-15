@@ -9,23 +9,24 @@ from config import JSON_DIR
 class BaseProduct(ABC):
     """ Абстрактный класс для Product """
 
+    @property
     @abstractmethod
-    def price(self):
+    def price(self) -> float:
         pass
 
-    @abstractmethod
     @classmethod
-    def new_product(cls, product_dict: dict):
+    @abstractmethod
+    def new_product(cls, product_dict: dict) -> 'Product':
         pass
 
-    @abstractmethod
     @classmethod
-    def products(cls):
+    @abstractmethod
+    def products(cls) -> list['Product']:
         pass
 
 
 class LogMixin:
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.__dict__})"
 
 
