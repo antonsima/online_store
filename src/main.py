@@ -67,10 +67,7 @@ class Product:
     def new_product(cls, product_dict: dict) -> 'Product':
         """ Возвращает новый объект Product """
 
-        return cls(product_dict['name'],
-                   product_dict['description'],
-                   product_dict['price'],
-                   product_dict['quantity'])
+        return cls(**product_dict)
 
     @property
     def price(self) -> float:

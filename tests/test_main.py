@@ -127,6 +127,10 @@ def test_product_new_product_and_price_setter(mock_input):
     test_new_product.price = 1000
     assert test_new_product.price == 1000
 
+    mock_input.side_effect = [':)', 'y']
+    test_new_product.price = 10
+    assert test_new_product.price == 10
+
 
 def test_init_existing_category_and_add_product(test_category_fruits, test_category_fruits_with_qiwi):
     first_init_category = test_category_fruits
@@ -201,6 +205,6 @@ def test_raises(test_smartphone, test_grass):
     assert str(exc_info.value) == "Нельзя добавить объект, не являющийся Product или его наследником"
 
     with pytest.raises(TypeError) as exc_info:
-        invalid_sum = smartphone + grass
+        smartphone + grass
 
     assert str(exc_info.value) == "Нельзя складывать отличающиеся экземпляры классов Product"
