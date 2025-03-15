@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import pytest
+
 from src.main import Category, CategoryIter, Product, get_categories_from_json_file
 
 
@@ -125,6 +127,10 @@ def test_product_new_product_and_price_setter(mock_input):
     test_new_product.price = 1000
     assert test_new_product.price == 1000
 
+    mock_input.side_effect = [':)', 'y']
+    test_new_product.price = 10
+    assert test_new_product.price == 10
+
 
 def test_init_existing_category_and_add_product(test_category_fruits, test_category_fruits_with_qiwi):
     first_init_category = test_category_fruits
@@ -168,3 +174,37 @@ def test_category_iter(test_category_fruits_with_qiwi):
     assert tmp_test_list[1] == 'Апельсин, 100 руб. Остаток: 640 шт.'
     assert tmp_test_list[2] == 'Яблоко, 100 руб. Остаток: 620 шт.'
     assert tmp_test_list[3] == 'Киви, 100 руб. Остаток: 110 шт.'
+
+
+def test_raises(test_smartphone, test_grass):
+    smartphone = test_smartphone
+    grass = test_grass
+
+    assert smartphone.name == "Samsung Galaxy S23 Ultra"
+    assert smartphone.description == "256GB, Серый цвет, 200MP камера"
+    assert smartphone.price == 180000.0
+    assert smartphone.quantity == 5
+    assert smartphone.efficiency == 95.5
+    assert smartphone.model == "S23 Ultra"
+    assert smartphone.memory == 256
+    assert smartphone.color == "Серый"
+
+    assert grass.name == "Газонная трава"
+    assert grass.description == "Элитная трава для газона"
+    assert grass.price == 500.0
+    assert grass.quantity == 20
+    assert grass.country == "Россия"
+    assert grass.germination_period == "7 дней"
+    assert grass.color == "Зеленый"
+
+    smartphones = Category('Смартфоны', 'Для повседневной жизни', [smartphone])
+
+    with pytest.raises(TypeError) as exc_info:
+        smartphones.add_product('Строку нельзя добавить в категорию')
+
+    assert str(exc_info.value) == "Нельзя добавить объект, не являющийся Product или его наследником"
+
+    with pytest.raises(TypeError) as exc_info:
+        smartphone + grass
+
+    assert str(exc_info.value) == "Нельзя складывать отличающиеся экземпляры классов Product"

@@ -1,6 +1,6 @@
 import pytest
 
-from src.main import Category, Product
+from src.main import Category, Product, Smartphone, LawnGrass
 
 
 @pytest.fixture()
@@ -21,6 +21,18 @@ def test_product_apple():
 @pytest.fixture()
 def test_product_qiwi():
     return Product('Киви', 'Тоже вкусно', 100, 5)
+
+
+@pytest.fixture()
+def test_smartphone():
+    return Smartphone("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0,
+                      5, 95.5, "S23 Ultra", 256, "Серый")
+
+
+@pytest.fixture()
+def test_grass():
+    return LawnGrass("Газонная трава", "Элитная трава для газона", 500.0, 20,
+                     "Россия", "7 дней", "Зеленый")
 
 
 @pytest.fixture()

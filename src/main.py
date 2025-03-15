@@ -52,7 +52,10 @@ class Product:
     def __add__(self, other: 'Product') -> float:
         """ Возвращает стоимость двух объектов Product """
 
-        return self.price * self.quantity + other.price * other.quantity
+        if type(self) is type(other):
+            return (self.__price * self.quantity) + (other.price * other.quantity)
+
+        raise TypeError('Нельзя складывать отличающиеся экземпляры классов Product')
 
     @classmethod
     def products(cls) -> list['Product']:
@@ -64,10 +67,7 @@ class Product:
     def new_product(cls, product_dict: dict) -> 'Product':
         """ Возвращает новый объект Product """
 
-        return cls(product_dict['name'],
-                   product_dict['description'],
-                   product_dict['price'],
-                   product_dict['quantity'])
+        return cls(**product_dict)
 
     @property
     def price(self) -> float:
@@ -97,6 +97,25 @@ class Product:
                         print('Введите один из предложенных вариантов: либо "y", либо "n": ')
         else:
             print('Цена не должна быть нулевая или отрицательная')
+
+
+class Smartphone(Product):
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 efficiency: float, model: str, memory: int, color: str):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 country: str, germination_period: str, color: str):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -182,12 +201,15 @@ class Category:
     def add_product(self, product: 'Product') -> None:
         """ Добавляет новый объект Product в категорию """
 
-        tmp_old_product_names = [existing_product.name for existing_product in self.__products]
+        if isinstance(product, Product):
+            tmp_old_product_names = [existing_product.name for existing_product in self.__products]
 
-        if product.name not in tmp_old_product_names:
-            self.__products.append(product)
+            if product.name not in tmp_old_product_names:
+                self.__products.append(product)
 
-            Category.product_count += 1
+                Category.product_count += 1
+        else:
+            raise TypeError('Нельзя добавить объект, не являющийся Product или его наследником')
 
 
 class CategoryIter:
