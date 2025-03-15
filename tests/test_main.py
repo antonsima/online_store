@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.main import Category, CategoryIter, Product, get_categories_from_json_file, BaseProduct
+from src.main import BaseProduct, Category, CategoryIter, Order, Product, get_categories_from_json_file
 
 
 def test_product(test_product_watermelon):
@@ -223,4 +223,15 @@ def test_base_product_error():
     with pytest.raises(TypeError) as exc_info:
         BaseProduct()
 
-    assert str(exc_info.value) == "Can't instantiate abstract class BaseProduct without an implementation for abstract methods 'new_product', 'price', 'products'"
+    assert (str(exc_info.value) == "Can't instantiate abstract class BaseProduct without "
+                                   "an implementation for abstract methods 'new_product', 'price', 'products'")
+
+
+def test_order(test_product_watermelon):
+    order = Order(test_product_watermelon)
+
+    assert order.name == 'Арбуз'
+    assert order.quantity == 10
+    assert order.total_cost == 1000
+
+    assert str(order) == 'Арбуз, 10 шт., итоговая стоимость 1000 р.'

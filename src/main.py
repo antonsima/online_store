@@ -25,6 +25,14 @@ class BaseProduct(ABC):
         pass
 
 
+class BaseOrderCategory(ABC):
+    """ Абстрактный класс для Category и Order """
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+
 class LogMixin:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.__dict__})"
@@ -51,6 +59,8 @@ class Product(BaseProduct, LogMixin):
             self.__price = price
             self.quantity = quantity
 
+            self.order_quantity = quantity
+
             Product.__products.append(self)
         else:
             for index, existing_product in enumerate(Product.__products):
@@ -64,6 +74,9 @@ class Product(BaseProduct, LogMixin):
                     self.description = description
                     self.__price = existing_product.price
                     self.quantity = existing_product.quantity
+
+                    self.order_quantity = quantity
+
                     break
 
         print(super().__repr__)
@@ -145,7 +158,7 @@ class LawnGrass(Product):
         super().__init__(name, description, price, quantity)
 
 
-class Category:
+class Category(BaseOrderCategory):
     """
     Класс для представления категории, который содержит имя, описание, продукты,
     количество категорий и количество продуктов
@@ -262,6 +275,16 @@ class CategoryIter:
             return self.category.products[self.stop - 1]
         else:
             raise StopIteration
+
+
+class Order(BaseOrderCategory):
+    def __init__(self, product: 'Product'):
+        self.name = product.name
+        self.quantity = product.order_quantity
+        self.total_cost = self.quantity * product.price
+
+    def __str__(self) -> str:
+        return f'{self.name}, {self.quantity} шт., итоговая стоимость {self.total_cost} р.'
 
 
 def get_categories_from_json_file(file_name: str) -> list[Category]:

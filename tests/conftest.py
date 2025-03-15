@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.main import Category, LawnGrass, Product, Smartphone, BaseProduct
+from src.main import BaseProduct, Category, LawnGrass, Product, Smartphone
 
 
 @pytest.fixture()
