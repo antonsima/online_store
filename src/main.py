@@ -1,11 +1,44 @@
 import json
 import os
+from abc import ABC, abstractmethod
 from typing import Iterator
 
 from config import JSON_DIR
 
 
-class Product:
+class BaseProduct(ABC):
+    """ Абстрактный класс для Product """
+
+    @property
+    @abstractmethod
+    def price(self) -> float:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def new_product(cls, product_dict: dict) -> 'Product':
+        pass
+
+    @classmethod
+    @abstractmethod
+    def products(cls) -> list['Product']:
+        pass
+
+
+class BaseOrderCategory(ABC):
+    """ Абстрактный класс для Category и Order """
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+
+class LogMixin:
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}('{self.__dict__})"
+
+
+class Product(BaseProduct, LogMixin):
     """ Класс для представления продукта, который содержит имя, описание, цену и количество """
 
     name: str
@@ -26,6 +59,8 @@ class Product:
             self.__price = price
             self.quantity = quantity
 
+            self.order_quantity = quantity
+
             Product.__products.append(self)
         else:
             for index, existing_product in enumerate(Product.__products):
@@ -39,7 +74,12 @@ class Product:
                     self.description = description
                     self.__price = existing_product.price
                     self.quantity = existing_product.quantity
+
+                    self.order_quantity = quantity
+
                     break
+
+        print(super().__repr__)
 
     def __str__(self) -> str:
         """
@@ -102,23 +142,23 @@ class Product:
 class Smartphone(Product):
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  efficiency: float, model: str, memory: int, color: str):
-        super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
         self.color = color
+        super().__init__(name, description, price, quantity)
 
 
 class LawnGrass(Product):
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  country: str, germination_period: str, color: str):
-        super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
         self.color = color
+        super().__init__(name, description, price, quantity)
 
 
-class Category:
+class Category(BaseOrderCategory):
     """
     Класс для представления категории, который содержит имя, описание, продукты,
     количество категорий и количество продуктов
@@ -235,6 +275,16 @@ class CategoryIter:
             return self.category.products[self.stop - 1]
         else:
             raise StopIteration
+
+
+class Order(BaseOrderCategory):
+    def __init__(self, product: 'Product'):
+        self.name = product.name
+        self.quantity = product.order_quantity
+        self.total_cost = self.quantity * product.price
+
+    def __str__(self) -> str:
+        return f'{self.name}, {self.quantity} шт., итоговая стоимость {self.total_cost} р.'
 
 
 def get_categories_from_json_file(file_name: str) -> list[Category]:

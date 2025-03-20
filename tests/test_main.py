@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.main import Category, CategoryIter, Product, get_categories_from_json_file
+from src.main import BaseProduct, Category, CategoryIter, Order, Product, get_categories_from_json_file
 
 
 def test_product(test_product_watermelon):
@@ -131,6 +131,9 @@ def test_product_new_product_and_price_setter(mock_input):
     test_new_product.price = 10
     assert test_new_product.price == 10
 
+    test_new_product.price = -1
+    assert test_new_product.price == 10
+
 
 def test_init_existing_category_and_add_product(test_category_fruits, test_category_fruits_with_qiwi):
     first_init_category = test_category_fruits
@@ -208,3 +211,27 @@ def test_raises(test_smartphone, test_grass):
         smartphone + grass
 
     assert str(exc_info.value) == "Нельзя складывать отличающиеся экземпляры классов Product"
+
+
+def test_base_product(mock_base_product):
+    assert mock_base_product.price() == 'mocked price'
+    assert mock_base_product.new_product() == 'mocked new_product'
+    assert mock_base_product.products() == 'mocked products'
+
+
+def test_base_product_error():
+    with pytest.raises(TypeError) as exc_info:
+        BaseProduct()
+
+    assert (str(exc_info.value) == "Can't instantiate abstract class BaseProduct without "
+                                   "an implementation for abstract methods 'new_product', 'price', 'products'")
+
+
+def test_order(test_product_watermelon):
+    order = Order(test_product_watermelon)
+
+    assert order.name == 'Арбуз'
+    assert order.quantity == 10
+    assert order.total_cost == 1000
+
+    assert str(order) == 'Арбуз, 10 шт., итоговая стоимость 1000 р.'

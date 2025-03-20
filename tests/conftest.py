@@ -1,6 +1,18 @@
+from unittest.mock import MagicMock
+
 import pytest
 
-from src.main import Category, Product, Smartphone, LawnGrass
+from src.main import BaseProduct, Category, LawnGrass, Product, Smartphone
+
+
+@pytest.fixture()
+def mock_base_product():
+    mock = MagicMock(spec=BaseProduct)
+    mock.price.return_value = 'mocked price'
+    mock.new_product.return_value = 'mocked new_product'
+    mock.products.return_value = 'mocked products'
+
+    return mock
 
 
 @pytest.fixture()
