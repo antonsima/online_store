@@ -251,6 +251,8 @@ class Category(BaseOrderCategory):
                 self.__products.append(product)
 
                 Category.product_count += 1
+        else:
+            raise TypeError('Нельзя добавить объект, не являющийся Product или его наследником')
 
     def middle_price(self) -> float:
         try:
