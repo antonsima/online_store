@@ -252,10 +252,9 @@ class Category(BaseOrderCategory):
 
                 Category.product_count += 1
 
-
-    def middle_price(self):
+    def middle_price(self) -> float:
         try:
-            summ = 0
+            summ = 0.0
 
             for existing_product in self.__products:
                 summ += existing_product.price
@@ -265,7 +264,7 @@ class Category(BaseOrderCategory):
             return avg_price
 
         except ZeroDivisionError:
-            return 0
+            return 0.0
 
 
 class CategoryIter:
