@@ -52,7 +52,7 @@ class Product(BaseProduct, LogMixin):
         """ Метод для инициализации экземпляра класса """
 
         if quantity == 0:
-            raise ValueError('Нельзя создать товар с количеством равным нулю')
+            raise ValueError('Товар с нулевым количеством не может быть добавлен')
 
         tmp_existing_products_names = [existing_product.name for existing_product in Product.__products]
 

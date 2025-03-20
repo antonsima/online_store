@@ -215,7 +215,7 @@ def test_raises(test_smartphone, test_grass):
     with pytest.raises(ValueError) as exc_info:
         Product('name', 'description', 10, 0)
 
-    assert str(exc_info.value) == "Нельзя создать товар с количеством равным нулю"
+    assert str(exc_info.value) == "Товар с нулевым количеством не может быть добавлен"
 
 
 def test_base_product(mock_base_product):
