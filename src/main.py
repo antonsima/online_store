@@ -51,6 +51,9 @@ class Product(BaseProduct, LogMixin):
     def __init__(self, name: str, description: str, price: float, quantity: int):
         """ Метод для инициализации экземпляра класса """
 
+        if quantity == 0:
+            raise ValueError('Нельзя создать товар с количеством равным нулю')
+
         tmp_existing_products_names = [existing_product.name for existing_product in Product.__products]
 
         if name not in tmp_existing_products_names:
@@ -248,8 +251,21 @@ class Category(BaseOrderCategory):
                 self.__products.append(product)
 
                 Category.product_count += 1
-        else:
-            raise TypeError('Нельзя добавить объект, не являющийся Product или его наследником')
+
+
+    def middle_price(self):
+        try:
+            summ = 0
+
+            for existing_product in self.__products:
+                summ += existing_product.price
+
+            avg_price = round(summ / len(self.__products), 2)
+
+            return avg_price
+
+        except ZeroDivisionError:
+            return 0
 
 
 class CategoryIter:
