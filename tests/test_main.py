@@ -212,6 +212,11 @@ def test_raises(test_smartphone, test_grass):
 
     assert str(exc_info.value) == "Нельзя складывать отличающиеся экземпляры классов Product"
 
+    with pytest.raises(ValueError) as exc_info:
+        Product('name', 'description', 10, 0)
+
+    assert str(exc_info.value) == "Товар с нулевым количеством не может быть добавлен"
+
 
 def test_base_product(mock_base_product):
     assert mock_base_product.price() == 'mocked price'
@@ -235,3 +240,18 @@ def test_order(test_product_watermelon):
     assert order.total_cost == 1000
 
     assert str(order) == 'Арбуз, 10 шт., итоговая стоимость 1000 р.'
+
+
+def test_category_middle_price():
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+
+    category1 = Category("Смартфоны", "Категория смартфонов", [product1, product2, product3])
+    avg_price1 = category1.middle_price()
+
+    category2 = Category("Холодильники", "Категория холодильников", [])
+    avg_price2 = category2.middle_price()
+
+    assert avg_price1 == 150250.0
+    assert avg_price2 == 0
